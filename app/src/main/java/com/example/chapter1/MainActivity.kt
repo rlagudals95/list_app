@@ -11,7 +11,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import java.time.LocalDate
 
 @SuppressLint("StaticFieldLeak") //AsyncTask로 인한메모리 누수 방지
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity() , OnDeleteListner {
 
     lateinit var db: MemoDatabase
 
@@ -27,13 +27,13 @@ class MainActivity : AppCompatActivity() {
 
         button_add.setOnClickListener {
             val memo = MemoEntity(null, edittext_memo.text.toString())
-
+            edittext_memo.setText("")
             insertMemo(memo)
         }
 
         recyclerView.layoutManager =LinearLayoutManager(this)
 
-
+        getAllMemos() //처음 실행시 모든 데이터 가져오기
     }
 
     // INSERT
@@ -71,13 +71,28 @@ class MainActivity : AppCompatActivity() {
         }).execute()
     }
     // DELETE DATA
-    fun deleteMemo () {
+    fun deleteMemo (memo: MemoEntity) {
+        val deleteTask = object : AsyncTask<Unit, Unit,Unit>() {
+            override fun doInBackground(vararg p0: Unit?) {
+                db.memoDAO().delete(memo)
+            }
 
+            override fun onPostExecute(result: Unit?) {
+                super.onPostExecute(result)
+                getAllMemos()
+            }
+        }
+
+        deleteTask.execute()
     }
     // SET RECYCLE VIEW
     // adapter를 사용해 recyclerView에 연결
     fun setRecycleView (memoList : List<MemoEntity>) {
-        recyclerView.adapter = MyAdapter(this, memoList)
+        recyclerView.adapter = MyAdapter(this, memoList, this)
+    }
+
+    override fun onDeleteListner(memo: MemoEntity) {
+        deleteMemo(memo)
     }
 
 }

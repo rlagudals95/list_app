@@ -8,7 +8,8 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.item_memo.view.*
 
 class MyAdapter(val context: Context,
-                val list : List<MemoEntity>) : RecyclerView.Adapter<MyAdapter.MyViewHoler>() {
+                val list : List<MemoEntity>,
+                var onDeleteListner: OnDeleteListner) : RecyclerView.Adapter<MyAdapter.MyViewHoler>() {
 
     // 리스트 사이즈
     override fun getItemCount(): Int {
@@ -30,6 +31,7 @@ class MyAdapter(val context: Context,
         // 꾹 ~ 누르면 delete
         holder.root.setOnLongClickListener(object : View.OnLongClickListener{
             override fun onLongClick(p0: View?): Boolean {
+                onDeleteListner.onDeleteListner(memo)
                 return true
             }
         })
